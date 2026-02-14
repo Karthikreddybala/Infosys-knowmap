@@ -1,0 +1,66 @@
+.traffic-page {
+   height: 88vh;
+    display: flex;
+    flex-direction: column;
+    margin-top: 5px;
+}
+
+.card1{
+    background-color: #a1b9ca;
+}
+.card2{
+    background-color: #63a7db;
+}
+
+.traffic-grid {
+    display: grid;
+    grid-template-columns: 65% 35%;
+    height: 100%;
+    gap: 10px;
+    /* padding: 10px; */
+}
+
+
+.traffic-col-1{
+    display: grid;
+    grid-template-rows: 50% 50%;
+    gap: 5px;
+    width: 100%;
+}
+.traffic-col-2{
+    display: grid;
+    grid-template-rows:100%;
+    gap: 10px;
+    width: 100%;
+}
+
+.traffic-col-1 {
+    background-color: #e3f2fd;
+}
+
+.traffic-col-2 {
+    background-color: #f5f5f5;
+}
+
+.traffic-row-1, .traffic-row-2, .traffic-row-3{
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    /* padding: 15px; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.traffic-row-1 {
+    background-color: #bbdefb;
+}
+
+.traffic-row-2 {
+    background-color: #90caf9;
+}
+
+.traffic-row-3 {
+    background-color: #eeeeee;
+}
+
