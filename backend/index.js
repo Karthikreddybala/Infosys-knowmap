@@ -19,15 +19,40 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ======= database connection =====
-const db=new pg.Client({
-    user:process.env.db_username,
-    host:process.env.db_host,
-    database:process.env.db_name,
-    password:process.env.db_password,
-    port:process.env.db_port
-})
-db.connect();
-console.log("Database connected successfully");
+// Validate environment variables
+const requiredEnvVars = ['db_username', 'db_host', 'db_name', 'db_password', 'db_port'];
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+    console.error('Missing required environment variables:', missingVars);
+    console.error('Please ensure all database configuration variables are set in your .env file');
+    process.exit(1);
+}
+
+// Ensure password is a string
+const dbPassword = process.env.db_password;
+if (typeof dbPassword !== 'string') {
+    console.error('Database password must be a string, got:', typeof dbPassword);
+    process.exit(1);
+}
+
+const db = new pg.Client({
+    user: process.env.db_username,
+    host: process.env.db_host,
+    database: process.env.db_name,
+    password: dbPassword,
+    port: process.env.db_port
+});
+
+db.connect()
+    .then(() => {
+        console.log("Database connected successfully");
+    })
+    .catch(err => {
+        console.error("Database connection failed:", err.message);
+        console.error("This might be due to incorrect credentials or database server issues");
+        process.exit(1);
+    });
 // db.query('SELECT * FROM users', (err, res) => {
 //     if (err) {
 //         console.error('Error executing query', err.stack);
