@@ -43,15 +43,6 @@ class ApiService {
                 };
             }
 
-            // Validate query
-            if (!query || query.trim().length === 0) {
-                return {
-                    success: false,
-                    message: 'Search query cannot be empty',
-                    data: null
-                };
-            }
-
             const sourceKey = source.toLowerCase();
             const service = this.services[sourceKey];
 
@@ -60,6 +51,14 @@ class ApiService {
             if (sourceKey === 'news' && options.getHeadlines) {
                 result = await service.getTopHeadlines(options.category, options.pageSize);
             } else {
+                // Validate query for standard search endpoints.
+                if (!query || query.trim().length === 0) {
+                    return {
+                        success: false,
+                        message: 'Search query cannot be empty',
+                        data: null
+                    };
+                }
                 result = await service.search(query, options.pageSize);
             }
 

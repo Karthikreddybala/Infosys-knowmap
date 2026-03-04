@@ -4,10 +4,12 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import pg from 'pg';
 import apiRoutes from './src/routes/api.js';
+import knowledgeGraphRoutes from './src/routes/knowledgeGraph.js';
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const getEnv = (primary, fallback) => process.env[primary] ?? process.env[fallback];
 // ===== MIDDLEWARE =====----------------
 // Allow requests from any origin (useful for testing with Postman)
 app.use(cors());
@@ -20,8 +22,16 @@ app.use(express.urlencoded({ extended: true }));
 
 // ======= database connection =====
 // Validate environment variables
-const requiredEnvVars = ['db_username', 'db_host', 'db_name', 'db_password', 'db_port'];
-const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+const requiredEnvVars = [
+    ['db_username', 'DB_USERNAME'],
+    ['db_host', 'DB_HOST'],
+    ['db_name', 'DB_NAME'],
+    ['db_password', 'DB_PASSWORD'],
+    ['db_port', 'DB_PORT']
+];
+const missingVars = requiredEnvVars
+    .filter(([primary, fallback]) => !getEnv(primary, fallback))
+    .map(([primary]) => primary);
 
 if (missingVars.length > 0) {
     console.error('Missing required environment variables:', missingVars);
@@ -30,18 +40,18 @@ if (missingVars.length > 0) {
 }
 
 // Ensure password is a string
-const dbPassword = process.env.db_password;
+const dbPassword = getEnv('db_password', 'DB_PASSWORD');
 if (typeof dbPassword !== 'string') {
     console.error('Database password must be a string, got:', typeof dbPassword);
     process.exit(1);
 }
 
 const db = new pg.Client({
-    user: process.env.db_username,
-    host: process.env.db_host,
-    database: process.env.db_name,
+    user: getEnv('db_username', 'DB_USERNAME'),
+    host: getEnv('db_host', 'DB_HOST'),
+    database: getEnv('db_name', 'DB_NAME'),
     password: dbPassword,
-    port: process.env.db_port
+    port: getEnv('db_port', 'DB_PORT')
 });
 
 db.connect()
@@ -88,7 +98,7 @@ app.post('/login',(req,res) => {
 });
 
 // ------------------------------------------------register---------------------------------------
-app.post('/register',(req,res) => {
+app.post('/register', async (req, res) => {
     if (!req.body || !req.body.username || !req.body.password) {
         return res.status(400).json({ error: "Username and password are required" });
     }
@@ -98,27 +108,21 @@ app.post('/register',(req,res) => {
     if (/\s/.test(req.body.password)) {
         return res.status(400).json({ error: "Password cannot contain spaces" });
     }
-    db.query('SELECT * FROM users WHERE username = $1', [req.body.username], (err, dbRes) => {
-        if (err) {
-            console.error('Error executing query', err.stack);
-            return res.status(500).json({ error: "Database error" });
-        }
-        else {
-            if (dbRes.rows.length > 0) {
-                return  res.status(400).json({ error: "User already exists" });
-            }
-        }
-    });
+    const { username, password } = req.body;
 
-    const {username,password}=req.body;
-    db.query('INSERT INTO users (username, password_hash) VALUES ($1, $2)', [username, password], (err, dbRes) => {
-    if (err) {
-        console.error('Error executing query', err.stack);
-        res.status(500).json({ error: "Database error" });
-    } else {
+    try {
+        const existingUser = await db.query('SELECT 1 FROM users WHERE username = $1', [username]);
+        if (existingUser.rows.length > 0) {
+            return res.status(400).json({ error: "User already exists" });
+        }
+
+        await db.query('INSERT INTO users (username, password_hash) VALUES ($1, $2)', [username, password]);
         console.log("Registration successful");
-        res.send("Registration successful "+username+" "+password);
-    }});
+        return res.json({ status: 'success' });
+    } catch (err) {
+        console.error('Error executing query', err.stack);
+        return res.status(500).json({ error: "Database error" });
+    }
 });
 
 
@@ -127,6 +131,11 @@ app.post('/register',(req,res) => {
 // ===== API ROUTES =====
 // Mount the API routes
 app.use('/api', apiRoutes);
+
+// Mount the knowledge graph routes
+console.log('Mounting knowledge graph routes...');
+app.use('/api/knowledge-graph', knowledgeGraphRoutes);
+console.log('Knowledge graph routes mounted successfully');
 
 // Start the server----------------------------------------------
 app.listen(PORT, () => {
@@ -139,4 +148,12 @@ app.listen(PORT, () => {
     console.log(`  - GET /api/search/arxiv?q=query - Direct arXiv search`);
     console.log(`  - GET /api/search/news?q=query - Direct News search`);
     console.log(`  - GET /api/news/headlines?category=tech - Get news headlines`);
+    console.log(`  - GET /api/metrics - Get real-time metrics`);
+    console.log(`  - GET /api/graph-stats - Get knowledge graph statistics`);
+    console.log(`  - GET /api/pipeline-feedback - Get NLP pipeline feedback`);
+    console.log(`  - POST /api/knowledge-graph/process - Process text and extract knowledge graph`);
+    console.log(`  - GET /api/knowledge-graph/system-info - Get system information`);
+    console.log(`  - GET /api/knowledge-graph/check-dependencies - Check Python dependencies`);
+    console.log(`  - POST /api/knowledge-graph/analyze - Analyze knowledge graph`);
+    console.log(`  - POST /api/knowledge-graph/query - Query knowledge graph`);
 });

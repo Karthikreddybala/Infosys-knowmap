@@ -1,0 +1,127 @@
+/* Basic styling for AppPreview page */
+
+.app-preview-container {
+    padding: 24px;
+    background-color: #f8fafc;
+    min-height: 100vh;
+    color: #1e293b;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.app-preview-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.app-preview-header .header-content h1 {
+    font-size: 28px;
+    margin: 0 0 4px 0;
+}
+
+.app-preview-header .header-content p {
+    margin: 0;
+    color: #64748b;
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.status-badge .last-updated {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.section-title {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: #334155;
+}
+
+.metrics-grid .metric-card,
+.accuracy-grid .accuracy-card,
+.performance-card,
+.feedback-card,
+.graph-stats-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin: 8px 0;
+}
+
+.metric-description {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+/* Chart placeholder styles (match existing markup) */
+.chart-placeholder {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    height: 120px;
+}
+
+.chart-bar {
+    width: 16px;
+    background-color: #3b82f6;
+    border-radius: 4px;
+}
+
+/* Feedback list styling */
+.feedback-list {
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.feedback-item {
+    padding: 8px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.feedback-timestamp {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-right: 12px;
+}
+
+.feedback-message {
+    flex: 1;
+}
+
+.feedback-status {
+    margin-left: 12px;
+}
+
+/* Graph stats card styling */
+.graph-stat-item {
+    text-align: center;
+}
+.graph-stat-label {
+    display: block;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+.graph-stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
