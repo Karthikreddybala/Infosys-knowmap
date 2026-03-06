@@ -19,9 +19,7 @@ function AppPreview() {
             const data = await response.json();
             if (data.success) {
                 setMetrics(data.data);
-                // use backend-provided status if available
-                const status = data.data.graphStatus || 'active';
-                setPipelineStatus(status);
+                setPipelineStatus('active');
                 setError('');
             }
         } catch (err) {
@@ -80,46 +78,6 @@ function AppPreview() {
             if (interval) {
                 clearInterval(interval);
             }
-        };
-    }, []);
-
-    useEffect(() => {
-        const handler = (e) => {
-            const nlp = e?.detail;
-            if (!nlp) return;
-            const totalNodes = nlp.nodes?.length || 0;
-            const totalEdges = nlp.edges?.length || 0;
-            setMetrics((prev) => ({
-                ...(prev || {}),
-                totalNodes,
-                totalRelations: totalEdges,
-                documentsProcessed: (prev?.documentsProcessed || 0)
-            }));
-            setGraphStats({
-                graphStats: {
-                    totalNodes,
-                    totalEdges,
-                    density: (totalNodes > 1 ? (totalEdges / (totalNodes * (totalNodes - 1))) : 0),
-                    avgDegree: totalNodes ? (totalEdges * 2 / totalNodes) : 0
-                }
-            });
-            setPipelineStatus('active');
-            setFeedback((prev) => {
-                const incoming = Array.isArray(nlp.feedback) ? nlp.feedback : (nlp.events || []);
-                if (!incoming || incoming.length === 0) return prev || [];
-                return [...incoming, ...(prev || [])].slice(0, 50);
-            });
-        };
-
-        const startHandler = () => {
-            setPipelineStatus('processing');
-        };
-
-        window.addEventListener('nlpResultsUpdated', handler);
-        window.addEventListener('nlpPipelineStarted', startHandler);
-        return () => {
-            window.removeEventListener('nlpResultsUpdated', handler);
-            window.removeEventListener('nlpPipelineStarted', startHandler);
         };
     }, []);
 
